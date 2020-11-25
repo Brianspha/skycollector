@@ -264,7 +264,7 @@ function initGame() {
 
         async function init() {
             // often need below - so consider it part of the template
-            let currentLevelTime = 10;
+            let currentLevelTime = 120;
             let currentLevel = 9;
             let sizePenalty = 3;
             await start();
