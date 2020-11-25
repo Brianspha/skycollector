@@ -44,7 +44,7 @@ export default {
     init() {
       try {
         this.replayOptions = {
-          url: JSON.parse(localStorage.getItem("video")).data,
+          url: JSON.parse(localStorage.getItem("user")).file,
           width: "100%",
         };
         console.log("here in try");

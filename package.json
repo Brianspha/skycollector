@@ -5,7 +5,7 @@
     "main": "contract_spec.js",
     "scripts": {
         "test": "embark test",
-        "start": "concurrently --kill-others-on-fail   \"vue-cli-service serve --https \" ",
+        "start": "concurrently --kill-others-on-fail   \"vue-cli-service serve \" ",
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint"

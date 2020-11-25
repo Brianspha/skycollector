@@ -8,6 +8,7 @@ export default {
   components: {},
   data: () => ({}),
   mounted() {
+  
     this.loadGame();
   },
   methods: {
@@ -17,6 +18,7 @@ export default {
         document.head.appendChild(gameScript);
         window.route = this.$route;
         this.$store.state.usernameDialogue = false;
+        
     },
   },
 };

@@ -58,9 +58,77 @@ export default {
         };
       }
     },
+    getSkyData: async function () {
+      console.log(
+        "datakEY: ",
+        this.$store.state.publicKey,
+        process.env.VUE_APP_APP_KEY
+      );
+      var test = await this.$store.state.client.db.getJSON(
+        this.$store.state.publicKey,
+        process.env.VUE_APP_APP_KEY
+      );
+      console.log("test: ", test);
+      return await this.$store.state.client.db.getJSON(
+        this.$store.state.publicKey,
+        process.env.VUE_APP_APP_KEY
+      );
+    },
+    getData() {
+      return new Promise(async (resolve) => {
+        try {
+          var test = await this.getSkyData();
+          if (!test) {
+            this.$store.state.data = null;
+            this.$store.state.revision = 1;
+          } else {
+            var { data, revision } = await this.getSkyData();
+            this.$store.state.data = data;
+            this.$store.state.revision = revision;
+            console.log("data");
+          }
+
+          //  await client.db.setJSON(appInfo.privateKey, data.secret, data);
+          resolve();
+        } catch (error) {
+          console.log(error);
+        }
+      });
+    },
+    createSaveUserModal() {
+      let _this = this;
+      window.document.addEventListener(
+        "saveUser",
+        async function (e) {
+          await _this.saveUser();
+        },
+        false
+      );
+    },
+    saveUser: async function () {
+      var user = JSON.parse(localStorage.getItem("user"));
+      console.log("saving user: ", user);
+      console.log("passed user: ", user);
+      if (!this.$store.state.data) {
+        this.$store.state.data = {
+          users: [],
+        };
+      }
+      this.$store.state.data.users.push(user);
+      await this.$store.state.client.db.setJSON(
+        this.$store.state.privateKey,
+        process.env.VUE_APP_APP_KEY,
+        this.$store.state.data,
+        this.$store.state.revision + 1
+      );
+    },
   },
   mounted() {
+    this.$store.dispatch("showLoading");
     this.createEvent();
+    this.getData();
+    this.createSaveUserModal();
+    this.$store.dispatch("hideLoading");
   },
 };
 </script>

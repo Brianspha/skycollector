@@ -2,25 +2,22 @@ import Swal from "sweetalert2";
 import bigNumber from "bignumber.js";
 import "js-loading-overlay";
 import axios from "axios";
-import { SkynetClient, genKeyPairFromSeed } from "skynet-js";
-const { publicKey } = genKeyPairFromSeed("this seed should be fairly long for security");
+import { SkynetClient } from "skynet-js";
 
-const dataKey = "myApp";
+const client = new SkynetClient();
 axios.defaults.headers.post["Content-Type"] =
     "application/x-www-form-urlencoded";
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
-const client = new SkynetClient();
 require('dotenv').config({ path: '../.env' })
 var user = JSON.parse(localStorage.getItem("user"));
 user.collected = 0
-console.log('secret: ', process.env.VUE_APP_SKYNET_SECRET)
+const appInfo = JSON.parse(localStorage.getItem('key'))
 let mediaRecorder = null;
 var recordedBlobs = [];
 console.log("window.URL: ", URL);
 let stream = null;
-const swarm = require("swarm-js").at("https://swarm-gateways.net");
+var data = {}
 configureStorage();
-checkMetamask();
 setUpBackEvent();
 initGame();
 
@@ -36,7 +33,9 @@ function hideLoading() {
     JsLoadingOverlay.hide();
 }
 
-function configureStorage() {}
+async function configureStorage() {
+
+}
 
 function handleSourceOpen(event) {
     console.log("MediaSource opened");
@@ -46,6 +45,7 @@ function handleSourceOpen(event) {
 async function handleStop(event) {
     console.log("Recorder stopped: ", event);
     const superBuffer = new Blob(recordedBlobs, { type: "video/webm" });
+    console.log('recorded Blobs: ', recordedBlobs);
     var data = await blobToVideo(superBuffer);
     await Promise.resolve(upload(data));
     window.document.dispatchEvent(
@@ -67,22 +67,30 @@ async function blobToVideo(blob) {
 }
 async function upload(file) {
     showLoading();
-    return new Promise((resolve) => {
+    return new Promise(async(resolve) => {
         try {
+            //await getData(data);
+            localStorage.setItem('user', JSON.stringify(user))
 
-            swarm.upload(file).then(async(hash) => {
-                console.log("Uploaded file. Address:", hash);
-                await Promise.resolve(saveRecording(hash));
-                hideLoading();
-            });
+            window.document.dispatchEvent(
+                new Event("saveUser", { bubbles: true })
+            );
+            //  await client.db.setJSON(appInfo.privateKey, data.secret, data);
+            hideLoading();
+            resolve()
         } catch (error) {
             console.log(error);
         }
     });
 }
+async function getData() {
+    console.log('client.db: ', client.db)
+    return await client.db.getJSON(appInfo.publicKey, appInfo.secret);
+}
+
 async function saveRecording(hash) {
     return new Promise(async(resolve) => {
-        resolve("receipt from adding video hash", receipt);
+        resolve("receipt from adding video hash");
     });
 }
 
@@ -218,7 +226,6 @@ function initGame() {
         let stageW = frame.width;
         let stageH = frame.height;
         let stage = frame.stage;
-        let timeCost = new bigNumber(100000000000000000000).toFixed();
         const intro = new Container(stageW, stageH).addTo();
         new Blob({
                 controlType: "none",
@@ -233,8 +240,8 @@ function initGame() {
         // LOGO
         // we make the logo intro relevant to the game
         // we pretend to place the logo on the shadow
-        new Label("The Collector", 130, "game", dark).center(intro).mov(10, 10);
-        const collector = new Label("The Collector", 130, "game", black).center(
+        new Label("Sky Collector", 130, "game", dark).center(intro).mov(10, 10);
+        const collector = new Label("Sky Collector", 130, "game", black).center(
             intro
         );
         collector.wiggle("x", collector.x, -5, 10, 700, 1000);
@@ -257,9 +264,9 @@ function initGame() {
 
         async function init() {
             // often need below - so consider it part of the template
-            let currentLevelTime = 30;
+            let currentLevelTime = 10;
             let currentLevel = 9;
-            let sizePenalty = 5;
+            let sizePenalty = 3;
             await start();
             setUpRecorder();
             mediaRecorder.start();
@@ -514,16 +521,7 @@ function initGame() {
                 map.on("pressup", hideMap);
                 stage.update();
                 /**/
-                var sablier = new Button({
-                        label: "Purchase Time",
-                        backgroundColor: black,
-                        rollBackgroundColor: green,
-                        corner: 5,
-                        width: 250,
-                    })
-                    .sca(0.8)
-                    .pos(30, 30, RIGHT, BOTTOM);
-                sablier.on("mousedown", purchaseTime);
+
                 stage.update();
 
                 Ticker.add(function() {
@@ -570,6 +568,11 @@ function initGame() {
                                 pausePlayer();
                             } else if (dot.color === currentColor) {
                                 user.collected += 1
+                                var bonus = Math.floor(Math.random() * 2000) + 1
+                                if (bonus % 2 === 0) {
+                                    timer.time += 10;
+                                    stage.update()
+                                }
                                 changeColor();
                                 stars.loc(dot).spurt(20);
                                 scorer.score--;
@@ -582,8 +585,9 @@ function initGame() {
 
                 async function submitScore() {
                     showLoading();
-
-
+                    var info = JSON.parse(localStorage.getItem('key'))
+                    console.log('info: ', info)
+                        //   window.location.href = "/gameview"
                 }
 
 
@@ -607,9 +611,9 @@ function initGame() {
                         width: 200,
                         height: 50,
                         corner: 0,
-                        backgroundColor: black,
+                        backgroundColor: green,
                         rollBackgroundColor: yellow,
-                        label: "Replay",
+                        label: "To Menu",
                     })
                     .center(loose)
                     .tap(async() => {

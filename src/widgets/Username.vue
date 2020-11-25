@@ -31,7 +31,7 @@
 
 <script>
 var usernameGenerator = require("username-generator");
-
+import { SkynetClient, genKeyPairFromSeed } from "skynet-js";
 export default {
   data: () => ({
     username: require("username-generator").generateUsername(),
@@ -39,8 +39,10 @@ export default {
   }),
   mounted() {
     console.log("this.username: ", this.valid);
+    
   },
   methods: {
+    
     play() {
       if (this.$refs.form.validate()) {
         this.$store.state.usernameDialogue = false;
@@ -49,7 +51,7 @@ export default {
           "user",
           JSON.stringify({ username: this.username })
         );
-        this.$router.push('/gameview')
+        this.$router.push("/gameview");
       } else {
         console.log("invalid ");
       }
