@@ -59,20 +59,12 @@ export default {
       }
     },
     getSkyData: async function () {
-      console.log(
-        "datakEY: ",
-        this.$store.state.publicKey,
-        process.env.VUE_APP_APP_KEY
-      );
+ 
       var test = await this.$store.state.client.db.getJSON(
         this.$store.state.publicKey,
         process.env.VUE_APP_APP_KEY
       );
-      console.log("test: ", test);
-      return await this.$store.state.client.db.getJSON(
-        this.$store.state.publicKey,
-        process.env.VUE_APP_APP_KEY
-      );
+      return test;
     },
     getData() {
       return new Promise(async (resolve) => {
@@ -82,10 +74,14 @@ export default {
             this.$store.state.data = null;
             this.$store.state.revision = 1;
           } else {
-            var { data, revision } = await this.getSkyData();
-            this.$store.state.data = data;
-            this.$store.state.revision = revision;
-            console.log("data");
+            var data = await this.getSkyData();
+            this.$store.state.data = data.data;
+            this.$store.state.data.users = this.$store.state.data.users.sort(
+              function (a, b) {
+                return parseInt(b.collected) - parseInt(a.collected);
+              }
+            );
+            this.$store.state.revision = data.revision;
           }
 
           //  await client.db.setJSON(appInfo.privateKey, data.secret, data);
@@ -97,18 +93,17 @@ export default {
     },
     createSaveUserModal() {
       let _this = this;
+
       window.document.addEventListener(
         "saveUser",
         async function (e) {
-          await _this.saveUser();
+          await _this.saveUser(e.detail);
         },
         false
       );
     },
-    saveUser: async function () {
-      var user = JSON.parse(localStorage.getItem("user"));
-      console.log("saving user: ", user);
-      console.log("passed user: ", user);
+    saveUser: async function (user) {
+      user = JSON.parse(user);
       if (!this.$store.state.data) {
         this.$store.state.data = {
           users: [],

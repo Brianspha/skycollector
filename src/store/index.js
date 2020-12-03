@@ -11,8 +11,7 @@ const { publicKey, privateKey } = genKeyPairFromSeed(
     process.env.VUE_APP_SKYNET_SECRET
 );
 localStorage.setItem('key', JSON.stringify({ publicKey: publicKey, secret: process.env.VUE_APP_APP_KEY, privateKey: privateKey }))
-const client = new SkynetClient();
-console.log("JsLoadingOverlay ", JsLoadingOverlay);
+const client = new SkynetClient('https://siasky.net/');
 Vue.use(Vuex);
 generateUsername.setAdjectives(["guest"]);
 var new_username = generateUsername.generate();
@@ -46,12 +45,10 @@ export default new Vuex.Store({
             JsLoadingOverlay.show({ spinnerIcon: "ball-pulse-rise" });
         },
         calculateDeposit(state, payload) {
-            console.log("payload", payload);
             var diff = payload.deposit.minus(
                 payload.deposit.minus(payload.deposit.mod(payload.delta))
             );
             payload.deposit = new bigNumber(payload.deposit).minus(diff);
-            console.log("deposit.toFixed(): ", payload.deposit.toFixed());
             return payload.deposit.toFixed();
         },
     },

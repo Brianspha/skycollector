@@ -108,7 +108,6 @@ export default {
   },
   mounted() {
     this.createShowModalEvent();
-    console.log("this.$store ", this.$store);
   },
   methods: {
    

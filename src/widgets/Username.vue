@@ -38,7 +38,6 @@ export default {
     valid: false,
   }),
   mounted() {
-    console.log("this.username: ", this.valid);
     
   },
   methods: {
@@ -46,7 +45,6 @@ export default {
     play() {
       if (this.$refs.form.validate()) {
         this.$store.state.usernameDialogue = false;
-        console.log("this.$route", this.$route);
         localStorage.setItem(
           "user",
           JSON.stringify({ username: this.username })

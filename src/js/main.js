@@ -14,7 +14,6 @@ user.collected = 0
 const appInfo = JSON.parse(localStorage.getItem('key'))
 let mediaRecorder = null;
 var recordedBlobs = [];
-console.log("window.URL: ", URL);
 let stream = null;
 var data = {}
 configureStorage();
@@ -37,15 +36,9 @@ async function configureStorage() {
 
 }
 
-function handleSourceOpen(event) {
-    console.log("MediaSource opened");
-    sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
-    console.log("Source buffer: ", sourceBuffer);
-}
+
 async function handleStop(event) {
-    console.log("Recorder stopped: ", event);
     const superBuffer = new Blob(recordedBlobs, { type: "video/webm" });
-    console.log('recorded Blobs: ', recordedBlobs);
     var data = await blobToVideo(superBuffer);
     await Promise.resolve(upload(data));
     window.document.dispatchEvent(
@@ -67,13 +60,14 @@ async function blobToVideo(blob) {
 }
 async function upload(file) {
     showLoading();
+    localStorage.clear();
     return new Promise(async(resolve) => {
         try {
-            //await getData(data);
-            localStorage.setItem('user', JSON.stringify(user))
-
+            user.file = file
+                //await getData(data);
+                // localStorage.setItem('user', JSON.stringify(user))
             window.document.dispatchEvent(
-                new Event("saveUser", { bubbles: true })
+                new CustomEvent("saveUser", { detail: JSON.stringify(user) })
             );
             //  await client.db.setJSON(appInfo.privateKey, data.secret, data);
             hideLoading();
@@ -83,10 +77,7 @@ async function upload(file) {
         }
     });
 }
-async function getData() {
-    console.log('client.db: ', client.db)
-    return await client.db.getJSON(appInfo.publicKey, appInfo.secret);
-}
+
 
 async function saveRecording(hash) {
     return new Promise(async(resolve) => {
@@ -97,14 +88,12 @@ async function saveRecording(hash) {
 function handleDataAvailable(event) {
     if (event.data && event.data.size > 0) {
         recordedBlobs.push(event.data);
-        console.log("recorded data.....");
     }
 }
 
 function setUpRecorder() {
     stream = document.getElementById("myCanvas");
     stream = stream.captureStream();
-    console.log("Started stream capture from canvas element: ", stream);
     let options = { mimeType: "video/webm" };
     recordedBlobs = [];
     try {
@@ -147,12 +136,7 @@ function setUpRecorder() {
     }
     mediaRecorder.ondataavailable = handleDataAvailable;
     mediaRecorder.onstop = handleStop;
-    console.log(
-        "Created MediaRecorder",
-        mediaRecorder,
-        "with options",
-        options
-    );
+
 }
 
 function setUpBackEvent() {
@@ -168,21 +152,7 @@ function startRecording() {
     //mediaRecorder.start();
 }
 
-function checkMetamask() {
-    /*==========Metamask  Detection Start==========*/
-    if (typeof web3 !== "undefined") {
-        console.log("MetaMask is installed");
-        var metamsk = activateEthListeners();
-        if (metamsk) {
-            warning("Game under development");
-        } else {
-            diplayMetaMaskError();
-        }
-    } else {
-        diplayMetaMaskError();
-        console.log("MetaMask is not installed");
-    }
-}
+
 
 function diplayMetaMaskError() {
     window.location.href = "/error";
@@ -208,7 +178,6 @@ function activateEthListeners() {
 
 function initGame() {
 
-    console.log("connected DApp..");
     const assets = ["ESKARGOT.ttf"];
     const path = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/1604712/";
     var paused = false;
@@ -264,8 +233,8 @@ function initGame() {
 
         async function init() {
             // often need below - so consider it part of the template
-            let currentLevelTime = 120;
-            let currentLevel = 9;
+            let currentLevelTime = 100;
+            let currentLevel = 5;
             let sizePenalty = 3;
             await start();
             setUpRecorder();
@@ -317,7 +286,6 @@ function initGame() {
 
                 const colors = [green, yellow, black, gray];
                 let currentColor = Promise.resolve(setPlayerColor(colors));
-                console.log("playerColor: ", currentColor);
                 const player = new Blob({
                         color: currentColor,
                         borderColor: "black",
@@ -502,7 +470,6 @@ function initGame() {
                     stopRecording();
                     stage.update();
                 });
-                console.log("timer: ", timer.time);
                 var scorer = new Scorer({
                     backgroundColor: yellow,
                     score: total,
@@ -584,10 +551,9 @@ function initGame() {
 
 
                 async function submitScore() {
-                    showLoading();
+                    //   showLoading();
                     var info = JSON.parse(localStorage.getItem('key'))
-                    console.log('info: ', info)
-                        //   window.location.href = "/gameview"
+                    window.location.href = "/gameview"
                 }
 
 
@@ -601,7 +567,6 @@ function initGame() {
 
                 function changeColor() {
                     timeout(5000, function() {
-                        console.log("changing colors");
                         currentColor = colors[Math.round(Math.random() * colors.length)];
                         player.color = currentColor;
                     });
