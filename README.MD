@@ -1,5 +1,5 @@
 # skycollector
- This is a sill POC blockchain game unfortunately i couldnt get skydb to upload file becuase of a 404 error but alas i will submit :XD
+ This is a sill POC blockchain game that uses the skydb feature of the skynet blockchain network
 ### Screenshots
 1. ![Usage](/screenshots/0.png)
 2. ![Usage](/screenshots/1.png)
@@ -24,5 +24,6 @@ Most of the ideas above where implemented but commented out see unit test file u
 
 
 ### Deployed
-1. 
-2. 
+1.  [Github Pages](https://brianspha.github.io/skycollector//)
+2.  [Skynet Pages](https://siasky.net/AAClJ7ck_S5toE_qoyeFYzkBIHLErwRZfQznV7k8auKYeQ)
+
