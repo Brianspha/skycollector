@@ -20,7 +20,7 @@
     "dependencies": {
         "@babel/runtime-corejs2": "^7.3.4",
         "@nebulous/skynet": "^1.1.0",
-        "@openzeppelin/contracts": "^2.5.0",
+        "@openzeppelin/contracts": "^4.7.2",
         "@openzeppelin/contracts-ethereum-package": "^2.5.0",
         "@openzeppelin/upgrades": "^2.8.0",
         "axios": "^0.19.2",
